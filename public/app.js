@@ -1,0 +1,290 @@
+function handleAjaxError(request) {
+  var obj = JSON.parse(request.responseText);
+  if (!obj) {
+    noti("error", "Không thể nhận dữ liệu về từ API này");
+  } else {
+    noti(obj.code, obj.message);
+  }
+}
+
+function handleFriendList(data) {
+  if (!data) {
+    noti("error", "Không thể nhận dữ liệu về từ API này");
+  } else {
+    if (data.count == 0) {
+      $("#list_friend").html(
+        `<span class="text-white text-center fs-13">Chưa có bạn bè nào</span>`
+      );
+    } else {
+      let i = 0;
+      data.data.forEach(function (obj) {
+        $(
+          "#list_friend"
+        ).append(`<div class="items-user ${i++ === 0 ? "active" : ""} d-flex align-items-center justify-content-between open-chat" data-chat="${obj.chatID}" data-uid="${obj.uid}" >
+    <div class="d-flex align-items-center">
+        <div class="position-relative">
+            <img src="${obj.avatar}" width="30" height="30" class="rounded-3" />
+            <span class="position-absolute status-user ${
+              obj.online == "true" ? `online` : `offline`
+            } rounded-circle">
+                <span class="visually-hidden">${
+                  obj.online == "true" ? `online` : `offline`
+                }</span>
+            </span>
+        </div>
+        <div class="ms-3 fs-13 text-main fw-semibold">
+            ${obj.name}
+        </div>
+    </div>
+</div>`);
+      });
+    }
+  }
+}
+
+function handleFriendInvitations(data) {
+  if (!data) {
+    noti("error", "Không thể nhận dữ liệu về từ API này");
+  } else {
+    if (data.count == 0) {
+      $("#loi-moi-ket-ban-pane > .menu-chat").html(
+        `<span class="text-white text-center fs-13">Chưa có lời mời kết bạn nào</span>`
+      );
+    } else {
+      data.data.forEach(function (obj) {
+        $(
+          "#loi-moi-ket-ban-pane > .menu-chat"
+        ).append(`<div class="items-user d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+        <div class="position-relative">
+            <img src="${obj.avatar}" width="30" height="30" class="rounded-3" />
+            <span class="position-absolute status-user online rounded-circle" ${
+              obj.online == "true" ? `online` : `offline`
+            }>
+                <span class="visually-hidden">${
+                  obj.online == "true" ? `online` : `offline`
+                }</span>
+            </span>
+        </div>
+        <div class="ms-3 fs-13 text-main fw-semibold">
+            ${obj.name}
+        </div>
+    </div>
+    <div class="d-flex align-items-center">
+        <button class="d-flex align-items-center border-0 btn btn-success fs-15" friend-data="agree" uid="${
+          obj.uid
+        }" role="button">
+            <i class="fas fa-check-circle"></i>
+            <span class="ms-2 fs-13 font-bold">ĐỒNG Ý</span>
+        </button>
+        <button class="d-flex align-items-center border-0 ms-2 btn btn-danger fs-15" role="button" friend-data="cancel" uid="${
+          obj.uid
+        }">
+            <i class="fa-solid fa-rectangle-xmark"></i>
+            <span class="ms-2 fs-13 font-bold">HỦY</span>
+        </button>
+    </div>
+</div>`);
+      });
+    }
+  }
+}
+function handleStartChat(data) {
+  if (!data) {
+    noti("error", "Không thể nhận dữ liệu về từ API này");
+  } else {
+    const socket2 = io();
+
+    socket2.on(data.ChatID, (data) => {
+      if ($(`[content-id="${data.data._id}"]`).length === 0) {
+        $("#chat")
+          .append(`<div class="d-flex align-items-start mt-4" content-id="${data.data._id}">
+<div class="position-relative">
+<img src="${data.avatar}"
+width="30" height="30" class="rounded-3" />
+</div>
+<div class="d-flex flex-column ms-3">
+<div class="d-flex flex-column">
+<div class="fs-11 text-main">${data.data.createdAt}</div>
+</div>
+
+<div class="mt-1 fs-13 text-white content-chat">
+${data.data.messages.content}
+
+</div>
+</div>
+</div>`);
+      }
+    });
+  }
+}
+function handleFriendStatus(data) {
+  if (!data) {
+    noti("error", "Không thể nhận dữ liệu về từ API này");
+  } else {
+    if (data.code == 200 && data.href !== undefined) {
+      setInterval(() => {
+        window.location.href = data.href;
+      }, 700);
+    }
+  }
+}
+
+function handleOpenChat(data) {
+  if (!data) {
+    noti("error", "Không thể nhận dữ liệu về từ API này");
+  } else {
+    data = data.data;
+
+    $(".box-chat")
+      .html(`<div class="top-message ps-4 pe-4 d-flex justify-content-between">
+<div class="d-flex align-items-center">
+<div class="position-relative">
+    <img src="${data.avatar}" width="30" height="30" class="rounded-3" />
+    <span class="position-absolute status-user ${
+      data.online == "true" ? `online` : `offline`
+    } rounded-circle">
+        <span class="visually-hidden">${
+          data.online == "true" ? `online` : `offline`
+        }</span>
+    </span>
+</div>
+<div class="ms-3 fs-13 text-main fw-semibold">
+    ${data.name == null ? data.username : data.name}
+</div>
+</div>
+<div class="d-flex align-items-center">
+<i class="fa-solid fa-square-info fs-20 text-main"></i>
+</div>
+</div>
+<div class="d-flex flex-column w-100 h-100">
+<div class="w-100 h-100 ps-4 overflow-auto pe-4 pb-3" id="chat">
+<!-- Chat content -->
+</div>
+<div class="d-flex box-upchat pt-3 w-100">
+<form id="message" class="d-flex h-100 w-100 ps-4 pe-4 inputchat " chat-id="${
+      data.ChatID
+    }">
+            <div id="editor_${data.ChatID}" class="w-100 editor fs-16">
+            </div>
+            <button type="submit" class="ms-2 border-0 bg-0 fs-22 text-main2 h-100 d-flex align-items-center">
+                <i class="fa-solid fa-paper-plane-top"></i>
+            </button>
+        </form>
+</div>
+</div>`);
+    $("#chat").html('');
+    const socket = io();
+
+    socket.on(data.ChatID, (data) => {
+      if ($(`[content-id="${data.data._id}"]`).length === 0) {
+        $("#chat")
+          .append(`<div class="d-flex align-items-start mt-4" content-id="${data.data._id}">
+<div class="position-relative">
+<img src="${data.avatar}"
+width="30" height="30" class="rounded-3" />
+</div>
+<div class="d-flex flex-column ms-3">
+<div class="d-flex flex-column">
+<div class="fs-11 text-main">${data.data.createdAt}</div>
+</div>
+
+<div class="mt-1 fs-13 text-white content-chat">
+${data.data.messages.content}
+
+</div>
+</div>
+</div>`);
+      }
+    });
+    const quill = new Quill(`#editor_${data.ChatID}`, {
+      placeholder: "Nhập nội dung tin nhắn",
+    });
+  }
+}
+$(function () {
+  $.ajax({
+    url: "/api/friend/friend",
+    type: "GET",
+    dataType: "json",
+    statusCode: {
+      500: function () {
+        noti(500, "500 status code! server error");
+      },
+    },
+    success: handleFriendList,
+    error: handleAjaxError,
+  });
+
+  $.ajax({
+    url: "/api/friend/invitation",
+    type: "GET",
+    dataType: "json",
+    statusCode: {
+      500: function () {
+        noti(500, "500 status code! server error");
+      },
+    },
+    success: handleFriendInvitations,
+    error: handleAjaxError,
+  });
+
+  $(document).on("click", "[friend-data]", function (e) {
+    $.ajax({
+      url: "/api/friend/status",
+      data: {
+        uid: $(this).attr("uid"),
+        type: $(this).attr("friend-data"),
+      },
+      type: "POST",
+      dataType: "json",
+      statusCode: {
+        500: function () {
+          noti(500, "500 status code! server error");
+        },
+      },
+      success: handleFriendStatus,
+      error: handleAjaxError,
+    });
+  });
+
+  $(document).on("submit", "#message", function (e) {
+    e.preventDefault();
+
+    $.ajax({
+      url: "/api/chat/send",
+      data: {
+        message: $(this).find(".ql-editor").html(),
+        chatID: $(this).attr("chat-id"),
+      },
+      type: "POST",
+      dataType: "json",
+      statusCode: {
+        500: function () {
+          noti(500, "500 status code! server error");
+        },
+      },
+      success: handleStartChat,
+      error: handleAjaxError,
+    });
+  });
+
+  $(document).on("click", ".open-chat", function (e) {
+    $.ajax({
+      url: "/api/chat/get",
+      data: {
+        uid: $(this).attr("data-uid"),
+        chatID: $(this).attr("data-chat"),
+      },
+      type: "POST",
+      dataType: "json",
+      statusCode: {
+        500: function () {
+          noti(500, "500 status code! server error");
+        },
+      },
+      success: handleOpenChat,
+      error: handleAjaxError,
+    });
+  });
+});

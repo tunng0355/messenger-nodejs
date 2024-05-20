@@ -1,0 +1,142 @@
+<div class="h-100 fixed-top header d-flex">
+    <div class="header-user h-100 justify-content-center d-flex">
+        <div class="d-flex flex-column justify-content-between">
+            <div class="d-flex flex-column ps-2 pe-2 pt-3 h-100">
+
+                <button type="button" class="p-2 position-relative items-box border-0 active">
+                    <i class="fa-solid fa-message-dots"></i>
+                </button>
+
+                <button type="button" class="p-2 mt-3 position-relative items-box border-0 " data-bs-toggle="modal"
+                    data-bs-target="#add_friend">
+                    <i class="fa-solid fa-user-plus"></i>
+                </button>
+
+            </div>
+            <div class="mb-4 position-relative">
+                <div class="position-relative d-flex justify-content-center align-items-center dropdown-user"
+                    role="button">
+                    <img src="<%-users.avatar %>" width="40" height="40" class="rounded-3 ">
+                    <span class="position-absolute setting-user " role="button">
+                        <i class="fa-solid fa-gear"></i>
+                    </span>
+                </div>
+                <div class="menu-user" style="display:none">
+                    <div class=" d-flex flex-column">
+                        <div role="button"
+                            class="items-profile mb-3 active d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="position-relative">
+                                    <img src="<%-users.avatar%>" width="30" height="30" class="rounded-3">
+                                    <span class="position-absolute status-user online rounded-circle">
+                                        <span class="visually-hidden">online</span>
+                                    </span>
+                                </div>
+                                <div class="ms-3 fs-13 text-main fw-semibold">
+                                    <%-users.fullname%>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <a href="" class="mb-2 items-users fs-13">
+                                Thông tin cá nhân
+                            </a>
+                            <div role="button" onclick="logout()" class="items-users fs-13">
+                                Đăng xuất
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .menu-user {
+            position: absolute;
+            padding: 12px 12px;
+            background: #657d91;
+            bottom: -7px;
+            left: 55px;
+            border-radius: 10px;
+            width: 13rem;
+            box-shadow: 1px 2px 9px 0px #0000003d !important;
+        }
+
+        .items-profile {
+            padding: 10px 13px;
+            border-radius: 7px;
+            background: #1e2b35;
+        }
+
+        .items-users {
+            padding: 10px 13px;
+            border-radius: 7px;
+            color: #e1f2ff;
+            background: #48586545;
+            font-weight: 500;
+        }
+
+        .items-users:hover {
+            color: #232d35;
+            background: #95d0ff;
+        }
+    </style>
+    <div class="header-chat h-100 ps-3 pe-3">
+        <div class="header-search">
+            <form class="d-flex w-100 align-items-center justify-content-center mt-3">
+                <input type="text" class="search-input border-0" placeholder="Tìm kiếm người đùng" />
+            </form>
+        </div>
+        <div class="d-flex align-items-center mt-2 w-100 justify-content-between">
+            <div class="fs-13 text-main">Tin nhắn trực tiếp</div>
+            <div></div>
+        </div>
+        <div class="d-flex menu-chat flex-column mt-2" id="list_friend">
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="add_friend" tabindex="-1" aria-labelledby="add_friend" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h1 class="modal-title fw-400 fs-6" id="name">BẠN BÈ</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="w-100">
+                    <ul class="nav nav-tabs mb-3 pt-0 border-0" id="myTab" role="tablist">
+                        <li class="nav-item w-50" role="presentation">
+                            <button class="bux-tab w-100 active " id="them-ban" data-bs-toggle="tab"
+                                data-bs-target="#them-ban-pane" type="button" role="tab" aria-controls="them-ban-pane"
+                                aria-selected="true">Thêm bạn</button>
+                        </li>
+                        <li class="nav-item w-50" role="presentation">
+                            <button class="bux-tab w-100" id="loi-moi-ket-ban" data-bs-toggle="tab"
+                                data-bs-target="#loi-moi-ket-ban-pane" type="button" role="tab"
+                                aria-controls="loi-moi-ket-ban-pane" aria-selected="false">Lời mời kết bạn</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="them-ban-pane" role="tabpanel" aria-labelledby="them-ban"
+                        tabindex="0">
+                        <form method="POST" action="/api/friend/add" data-ajax>
+                            <input type="text" class="input2 form-control outline-0 bg-main text-gray border-0 fs-15"
+                                id="account" aria-describedby="account" name="account"
+                                placeholder="Vui lòng nhập username...">
+                            <button type="submit"
+                                class="btn btn-light bg-white fw-semibold text-main2 pt-2 pb-2 mt-3 w-100 border-0">Thêm
+                                bạn</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="loi-moi-ket-ban-pane" role="tabpanel"
+                        aria-labelledby="loi-moi-ket-ban" tabindex="0">
+                        <div class="d-flex menu-chat box-add flex-column mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
